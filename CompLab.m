@@ -32,61 +32,86 @@ EfficRatio = 0.9;
 % first positive number
 Postiv = find(Cl_2D>0,1);
 
-% Alpha when lift is == 0 
+% Alpha (AOA) when lift is == 0 
 Alpha0 = mean([Alpha2D(Postiv);Alpha2D(Postiv-1)]);
 %Alpha0 = (Cl_2D(Postiv) - Cl_2D(Postiv - 1))/(Alpha2D(Postiv) - Alpha2D(Postiv - 1)) * (Alpha2D(Postiv));
-
-% a0 = cl / alpha2D
+Alpha0 = -2.6214;
 
 % pick point in the middle
 
 [ r c ] = size(Cl_2D);
-MidPoint = floor(r/2);
+MidPoint = ceil(r/2);
 
 
+% The slope of the linear region for the 2d wing.
 a0 = (Cl_2D(MidPoint+1)-Cl_2D(MidPoint))/((Alpha2D(MidPoint+1)-Alpha2D(MidPoint)));
 
+
+
+
 % the lift curve slope for 3D
+a3D_Wing_liftCurveSlope = (a0)/(1+ ( ( 57.3 * a0 ) / ( pi * EfficRatio * AspectRatio) )) ;
 
-a3D_liftCurveSlope = (a0)/(1+ ( ( 57.3 * a0 ) / ( pi * EfficRatio * AspectRatio) )) ;
-
-CL_3D_Estimated = a3D_liftCurveSlope .* ( Alpha2D - Alpha0);
+CL_3DWing_Estimated = a3D_Wing_liftCurveSlope .* ( Alpha2D - Alpha0);
 
 %% Induced drag, and  wing drag
 
-InducedDrag = (CL_3D_Estimated).^2 ./ (pi*EfficRatio*AspectRatio);
+InducedDrag_Wing3D = (CL_3DWing_Estimated).^2 ./ (pi*EfficRatio*AspectRatio);
 
 % the wing drag 
-WingDrag = Cd_2D + InducedDrag;
+WingDrag = Cd_2D + InducedDrag_Wing3D;
+
+% get alpha when wing drage is min to be used in equation 3.5;
+
+Alpha_wing_mindD = Alpha2D(find(min(WingDrag)==WingDrag));
 
 %% the whole aircraft drag
 
 % find where the the minumm drage happens on the whole wing, get CL
 % corresponding. 
-CL_Min_D = CL_3D_Estimated(find(WingDrag == min(WingDrag)));
 
-
-% Oswald efficiency e0
+% The equation used is 3.4a in the pdf, it's on page 4
+% the component of the equation is in the next page.
 
 e0 = 1.78 * ( 1 - 0.045 .* AspectRatio.^(0.68)) - 0.64 ;
 k1 = 1 / ( pi * e0 * AspectRatio ) ;
 
+%CL_whenDragIsMin_for_the_whole_airplane
+CL_MinD_Airplane = a3D_Wing_liftCurveSlope * ( Alpha_wing_mindD - Alpha0);
+CD_Min_theWhole_Airplane = 0.00307;
+ParasiteDrag_CD0_wholeAirplane = CD_Min_theWhole_Airplane + k1*CL_MinD_Airplane ;
 
-% total polar drag: for the whole aircraft.
+k2 = -2*k1*CL_MinD_Airplane;
 
-CD_Polar = min(WingDrag) + k1.*((CL_3D_Estimated - CL_Min_D).^2) ; 
+CD_theWholeAirplane_Polar = ParasiteDrag_CD0_wholeAirplane + k1*(CL_3DWing_Estimated).^2 + k2*(CL_3DWing_Estimated);
+
+
 
 
 %% L/D : is it 3d just wing or the whoel aircraft/
 
 
-L_D_WholeAirplane = CL_3D_Estimated ./ WingDrag ; 
+L_D_WholeAirplane = CL_3DWing_Estimated ./ CD_theWholeAirplane_Polar ; 
 L_D_CFD = (CL_CFD./CD_CFD);
+
+%% velocity to achieve max range and max endurance
+
+GOTA = 6.4; % Kg, groos weight
+Density = 1.0324 ; %kg/m^3 @ 1.8 km.
+WingArea = 0.63 ; % wing area.
+V_MaxRangeEndurance_Equation = @(CL_V) sqrt ( (2 *( GOTA/WingArea)) / ((Density)*CL_V));
+
+CL_Max_Range = sqrt( ParasiteDrag_CD0_wholeAirplane/k1);
+CL_Max_Endurance = sqrt( (3*ParasiteDrag_CD0_wholeAirplane)/k1);
+
+V_Max_Range = V_MaxRangeEndurance_Equation(CL_Max_Range);
+V_Max_Endurance = V_MaxRangeEndurance_Equation(CL_Max_Endurance);
+
 %% plot
 
 figure(1)
 
-plot(Alpha2D,CL_3D_Estimated,'-.','LineWidth',2.5)
+plot(Alpha2D,CL_3DWing_Estimated,'-.','LineWidth',2.5)
 hold on
 plot(AlphaCFD,CL_CFD,'-.','LineWidth',2.5)
 hold on
@@ -107,9 +132,9 @@ grid minor
 
 figure(2)
 
-plot(CL_3D_Estimated,WingDrag,'-.','LineWidth',2.5)
+plot(CL_3DWing_Estimated,WingDrag,'-.','LineWidth',2.5)
 hold on
-plot(CL_3D_Estimated,CD_Polar,'-.','LineWidth',2.5)
+plot(CL_3DWing_Estimated,CD_theWholeAirplane_Polar,'-.','LineWidth',2.5)
 hold on
 plot(CL_CFD,CD_CFD,'-.','LineWidth',2.5)
 hold on
