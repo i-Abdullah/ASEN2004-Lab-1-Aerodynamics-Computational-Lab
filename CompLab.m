@@ -78,7 +78,8 @@ k1 = 1 / ( pi * e0 * AspectRatio ) ;
 
 %CL_whenDragIsMin_for_the_whole_airplane
 CL_MinD_Airplane = a3D_Wing_liftCurveSlope * ( Alpha_wing_mindD - Alpha0);
-CD_Min_theWhole_Airplane = 0.00307;
+CD_Min_theWhole_Airplane = 0.0112;
+
 ParasiteDrag_CD0_wholeAirplane = CD_Min_theWhole_Airplane + k1*CL_MinD_Airplane ;
 
 k2 = -2*k1*CL_MinD_Airplane;
@@ -97,12 +98,17 @@ L_D_CFD = (CL_CFD./CD_CFD);
 %% velocity to achieve max range and max endurance
 
 GOTA = 6.4; % Kg, groos weight
+GOTAWeight = GOTA*9.81;
 Density = 1.0324 ; %kg/m^3 @ 1.8 km.
 WingArea = 0.63 ; % wing area.
-V_MaxRangeEndurance_Equation = @(CL_V) sqrt ( (2 *( GOTA/WingArea)) / ((Density)*CL_V));
+V_MaxRangeEndurance_Equation = @(CL_V) sqrt ( (2 *( GOTAWeight/WingArea)) / ((Density)*CL_V));
 
 CL_Max_Range = sqrt( ParasiteDrag_CD0_wholeAirplane/k1);
 CL_Max_Endurance = sqrt( (3*ParasiteDrag_CD0_wholeAirplane)/k1);
+
+
+CL_CD_Ratio_Max_Endurance = GOTAWeight/ParasiteDrag_CD0_wholeAirplane;
+CL_CD_Ratio_Max_Range = GOTAWeight/ParasiteDrag_CD0_wholeAirplane;
 
 V_Max_Range = V_MaxRangeEndurance_Equation(CL_Max_Range);
 V_Max_Endurance = V_MaxRangeEndurance_Equation(CL_Max_Endurance);
@@ -111,18 +117,18 @@ V_Max_Endurance = V_MaxRangeEndurance_Equation(CL_Max_Endurance);
 
 figure(1)
 
-plot(Alpha2D,CL_3DWing_Estimated,'-.','LineWidth',2.5)
+plot(Alpha2D,CL_3DWing_Estimated,'*-','LineWidth',1)
 hold on
-plot(AlphaCFD,CL_CFD,'-.','LineWidth',2.5)
+plot(AlphaCFD,CL_CFD,'*-','LineWidth',1)
 hold on
-plot(Alpha2D,Cl_2D,'-.','LineWidth',2.5)
+plot(Alpha2D,Cl_2D,'*-','LineWidth',1)
 hold on
 refline(0)
 hold off
 
 legend('3D Calculated','CFD','2D','Location','SouthEast')
-xlabel(' \alpha \circ ')
-ylabel(' Coefficient of Lift')
+xlabel('\alpha \circ ')
+ylabel('Coefficient of Lift')
 title('Lift Curve Comparison')
 grid minor
 
@@ -132,11 +138,11 @@ grid minor
 
 figure(2)
 
-plot(CL_3DWing_Estimated,WingDrag,'-.','LineWidth',2.5)
+plot(CL_3DWing_Estimated,WingDrag,'*-','LineWidth',1)
 hold on
-plot(CL_3DWing_Estimated,CD_theWholeAirplane_Polar,'-.','LineWidth',2.5)
+plot(CL_3DWing_Estimated,CD_theWholeAirplane_Polar,'*-','LineWidth',1)
 hold on
-plot(CL_CFD,CD_CFD,'-.','LineWidth',2.5)
+plot(CL_CFD,CD_CFD,'*-','LineWidth',1)
 hold on
 refline(0)
 hold off
@@ -151,16 +157,16 @@ grid minor
 
 figure(3)
 
-plot(Alpha2D,L_D_WholeAirplane,'-.','LineWidth',2.5)
+plot(Alpha2D,L_D_WholeAirplane,'*-','LineWidth',1)
 hold on
-plot(AlphaCFD,L_D_CFD,'-.','LineWidth',2.5)
+plot(AlphaCFD,L_D_CFD,'*-','LineWidth',1)
 hold on
 refline(0)
 hold off
 
 legend('3D Wings full L/D','CFD L/D','Location','NorthWest')
 xlabel(' \alpha \circ ')
-ylabel(' L/D')
+ylabel('L/D')
 title('L/D Comparison')
 grid minor
 

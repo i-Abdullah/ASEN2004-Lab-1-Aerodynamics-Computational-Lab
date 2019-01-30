@@ -17,7 +17,7 @@ t_c_at_root = 8.7/100 ;
 
 % NOTE: This airplane has uniform cross section through out the whole thing
 % so the ratio will be 1!
-Tau = (8.7/100)*0.23 / ((30/100)*0.23) ;
+Tau = (8.7/100) / (8.7/100) ;
 
 % is the taper ratio which is the ratio of the root chord to the tip chord of the planform
 
@@ -37,9 +37,12 @@ Cfe = 0.004; %  equivelent skin friction drag
 
 % is the exposed planform area of the planform not including the area within the fuselage
 
-Sexp_plf = 0.63 ;
+Sexp_plf = 0.63 ; % only wing platform area
+Non_exposed = 0.23*0.16 ; % the non exposed side of the wing that attaches to the fueslage.
 
-Swet_wing = 2 * Sexp_plf * ( 1 + 0.25 * (t_c_at_root) * ( ( 1 + (Tau*Lambda)) / ( 1 + Lambda)) ) * 3.7 ;
+Total_Exposed = Sexp_plf - Non_exposed;
+
+Swet_wing = 2 * Total_Exposed * ( 1 + 0.25 * (t_c_at_root) * ( ( 1 + (Tau*Lambda)) / ( 1 + Lambda)) )  ;
 
 
 
@@ -59,9 +62,8 @@ A3 = A2 - BottomArea; % Substract bottom of wing from total area in m^2
 AFuselage = A3 + A1 % Total area of fuselage
 
 %%
-
+AFuselage = 0.55;
 Atotal = AFuselage+Swet_wing
-
 Sref = 0.63 ; %surface refrence area
 
 
