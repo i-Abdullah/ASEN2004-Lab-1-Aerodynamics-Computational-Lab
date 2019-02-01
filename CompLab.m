@@ -33,9 +33,9 @@ EfficRatio = 0.9;
 Postiv = find(Cl_2D>0,1);
 
 % Alpha (AOA) when lift is == 0 
-Alpha0 = mean([Alpha2D(Postiv);Alpha2D(Postiv-1)]);
+AOA_Zero_Lift = mean([Alpha2D(Postiv);Alpha2D(Postiv-1)]);
 %Alpha0 = (Cl_2D(Postiv) - Cl_2D(Postiv - 1))/(Alpha2D(Postiv) - Alpha2D(Postiv - 1)) * (Alpha2D(Postiv));
-Alpha0 = -2.6214;
+AOA_Zero_Lift = -2.6214;
 
 % pick point in the middle
 
@@ -52,7 +52,7 @@ a0 = (Cl_2D(MidPoint+1)-Cl_2D(MidPoint))/((Alpha2D(MidPoint+1)-Alpha2D(MidPoint)
 % the lift curve slope for 3D
 a3D_Wing_liftCurveSlope = (a0)/(1+ ( ( 57.3 * a0 ) / ( pi * EfficRatio * AspectRatio) )) ;
 
-CL_3DWing_Estimated = a3D_Wing_liftCurveSlope .* ( Alpha2D - Alpha0);
+CL_3DWing_Estimated = a3D_Wing_liftCurveSlope .* ( Alpha2D - AOA_Zero_Lift);
 
 %% Induced drag, and  wing drag
 
@@ -77,7 +77,7 @@ e0 = 1.78 * ( 1 - 0.045 .* AspectRatio.^(0.68)) - 0.64 ;
 k1 = 1 / ( pi * e0 * AspectRatio ) ;
 
 %CL_whenDragIsMin_for_the_whole_airplane
-CL_MinD_Airplane = a3D_Wing_liftCurveSlope * ( Alpha_wing_mindD - Alpha0);
+CL_MinD_Airplane = a3D_Wing_liftCurveSlope * ( Alpha_wing_mindD - AOA_Zero_Lift);
 CD_Min_theWhole_Airplane = 0.0112;
 
 ParasiteDrag_CD0_wholeAirplane = CD_Min_theWhole_Airplane + k1*CL_MinD_Airplane ;
@@ -116,8 +116,8 @@ V_Max_Endurance = V_MaxRangeEndurance_Equation(CL_Max_Endurance);
 
 %based on the assumption that CL of the wing is CL for the airplane, we can estimate the AOA from graph of equations
 
-AOA_Max_Range = (CL_Max_Range/a3D_Wing_liftCurveSlope)+Alpha0;
-AOA_Max_Endurance = (CL_Max_Endurance/a3D_Wing_liftCurveSlope)+Alpha0;
+AOA_Max_Range = (CL_Max_Range/a3D_Wing_liftCurveSlope)+AOA_Zero_Lift;
+AOA_Max_Endurance = (CL_Max_Endurance/a3D_Wing_liftCurveSlope)+AOA_Zero_Lift;
 
 %% plot
 
@@ -144,19 +144,17 @@ grid minor
 
 figure(2)
 
-plot(CL_3DWing_Estimated,WingDrag,'*-','LineWidth',1)
+plot(Cl_2D,Cd_2D,'*-','LineWidth',1)
 hold on
 plot(CL_3DWing_Estimated,CD_theWholeAirplane_Polar,'*-','LineWidth',1)
-hold on
-plot(CL_CFD,CD_CFD,'*-','LineWidth',1)
 hold on
 refline(0)
 hold off
 
-legend('Finite wing drag','Polar drag (the whole aircraft)','CFD Drag','Location','NorthWest')
+legend('infinite wing drag','finite wing drag','Location','NorthWest')
 xlabel(' Coefficients of Lift ')
 ylabel(' Coefficient of Drag')
-title('Drag Polar Comparison')
+title('Drag Polar Comparison: The wings')
 grid minor
 
 % - - - 
@@ -177,3 +175,18 @@ title('L/D Comparison')
 grid minor
 
 % - - - 
+
+figure(4)
+
+plot(CL_3DWing_Estimated,CD_theWholeAirplane_Polar,'*-','LineWidth',1)
+hold on
+plot(CL_CFD,CD_CFD,'*-','LineWidth',1)
+hold on
+refline(0)
+hold off
+
+legend('estimated Polar Drag','estimated CFD Drag','Location','NorthWest')
+xlabel(' Coefficients of Lift ')
+ylabel(' Coefficient of Drag')
+title('Drag Polar Comparison: The whole airplane')
+grid minor
