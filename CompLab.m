@@ -113,6 +113,12 @@ CL_CD_Ratio_Max_Range = GOTAWeight/ParasiteDrag_CD0_wholeAirplane;
 V_Max_Range = V_MaxRangeEndurance_Equation(CL_Max_Range);
 V_Max_Endurance = V_MaxRangeEndurance_Equation(CL_Max_Endurance);
 
+
+%based on the assumption that CL of the wing is CL for the airplane, we can estimate the AOA from graph of equations
+
+AOA_Max_Range = (CL_Max_Range/a3D_Wing_liftCurveSlope)+Alpha0;
+AOA_Max_Endurance = (CL_Max_Endurance/a3D_Wing_liftCurveSlope)+Alpha0;
+
 %% plot
 
 figure(1)
