@@ -46,24 +46,38 @@ Swet_wing = 2 * Total_Exposed * ( 1 + 0.25 * (t_c_at_root) * ( ( 1 + (Tau*Lambda
 
 
 
-%% Estimated surface area of airplane form front fuselage to tip of wing
-r = 0.0800; % Radius in m
-h = 0.45; % Hight/length of cone in m
-A = pi * r * ( r + sqrt( h^2 + r^2)); % Area from front fuselage to tip of wing in m^2
-BottomArea = pi * r^2; % Compute bottom area of the cone in m^2
-A1 = A - BottomArea; % Substract bottom are of the cone in m^2
+%% Estimation of the surface area of the UAV (Exluding wings)
 
-% Estimated surface area of airplane from front wing to to front canard
-h2 = 1.56 - h - 0.13; % Height/length of cone in m 
-A2 = pi * r * ( r + sqrt( h2^2 + r^2)); % Area of bottom of cone in m^2
-A3 = A2 - BottomArea; % Substract bottom of wing from total area in m^2
+% Assume cylinder extending from front fuselage to 0.45 m
+h = .45;
+r = 0.08;
+A1 = pi * r * (r + sqrt(h^2 + r^2));
 
-% Total surface area of the airplane excluding wings
-AFuselage = A3 + A1 % Total area of fuselage
+% Assume cylinder extending from 0.45 m to front of horizontal stabilizer
+h2 =0.9800;
+A2 = 2 * pi * r * h;
+
+% Verical stabilizer 1 - Assume triangle
+base = .28;
+height = .4;
+A3 = 2 * .5 * base * height;
+
+% Verical stabilizer 2 - Assume rectangle
+l = 0.13;
+b = .4;
+A4 = 2 * l * b;
+
+% Estimate the horizontal stabilizer
+Length = 0.75;
+Width = 0.13;
+
+A5= 2 * Length * Width;
+
+% Sum of areas
+ATotal  = A1 + A2 + A3 + A4 +A5
 
 %%
-AFuselage = 0.55;
-Atotal = AFuselage+Swet_wing
+Atotal = ATotal + Swet_wing
 Sref = 0.63 ; %surface refrence area
 
 

@@ -16,6 +16,14 @@ A3 = A2 - BottomArea; % Substract bottom of wing from total area in m^2
 % Total surface area of the airplane excluding wings
 AFuselage = A3 + A1 % Total area of fuselage
 
+% Estimate the horizontal stabilizer
+Length = 0.75;
+Width = 0.13;
+
+% Area horizontal stabilizer
+Area = 2 * Length * Width
+
+
 Atotal = AFuselage+4.7634
 
 

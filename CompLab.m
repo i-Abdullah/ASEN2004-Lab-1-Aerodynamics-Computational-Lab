@@ -78,9 +78,9 @@ k1 = 1 / ( pi * e0 * AspectRatio ) ;
 
 %CL_whenDragIsMin_for_the_whole_airplane
 CL_MinD_Airplane = a3D_Wing_liftCurveSlope * ( Alpha_wing_mindD - AOA_Zero_Lift);
-CD_Min_theWhole_Airplane = 0.0112;
+CD_Min_theWhole_Airplane =    0.012599210884700;
 
-ParasiteDrag_CD0_wholeAirplane = CD_Min_theWhole_Airplane + k1*CL_MinD_Airplane ;
+ParasiteDrag_CD0_wholeAirplane = CD_Min_theWhole_Airplane + k1*(CL_MinD_Airplane)^2 ;
 
 k2 = -2*k1*CL_MinD_Airplane;
 
