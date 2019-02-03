@@ -1,5 +1,7 @@
 %% info
 
+% This script is to see how changing the weight of the aircraft will affect
+% the aerodynamic performance of an aircraft, and plot the results.
 
 %% Housekeeping
 
